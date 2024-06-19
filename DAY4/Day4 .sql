@@ -178,9 +178,12 @@ select emp_name , Rpad(substr(emp_no ,1, 8),14 , '*') from employee;
 --10. 직원명, 직급코드, 연봉(원) 조회
 --  단, 연봉은 ￦57,000,000 으로 표시되게 함
 --     연봉은 보너스포인트가 적용된 1년치 급여임
+
 --11. 사원명과, 부서명을 출력하세요.
 --   부서코드가 D5이면 총무부, D6이면 기획부, D9이면 영업부로 처리하시오.(case 사용)
 --   단, 부서코드가 D5, D6, D9 인 직원의 정보만 조회하고, 부서코드 기준으로 오름차순 정렬함.
+--12. 재직중인 직원과 퇴사한 직원의 수를 조회하시오.
+select decode(ent_yn,'N','재직','퇴직') , count(*) from employee group by ent_yn;
 ------------------------------------------------------------------------------------
 --ex7
 select emp_id , emp_name , dept_code , hire_date from employee where (dept_Code = 'D5' or dept_code = 'D9') ANd extract (year from hire_date) = '2004';
@@ -189,10 +192,15 @@ select emp_name , hire_date , floor(months_between(sysdate , hire_date)*30) from
 --ex9
 select emp_name, dept_code , substr(emp_no ,1,2)||'년'||substr(emp_no ,3,2)||'월'||substr(emp_no,5,2)||'일' ,extract (year from sysdate) - ('19'|| substr(emp_no,1,2))  from employee;
 --ex10
-select emp_name , dept_code , '￦'||salary*12 from employee;
+select emp_name "직원명" , job_code "직급코드", to_char(salary*12+salary*nvl(bonus,0),'L999,999,999') "연봉(원)" from employee;
 --ex11
-select emp_name , dept_code from employee;
+select  emp_name "사원명" , case when dept_code = 'D5' then '총무부'  when dept_code = 'D6' then '기획부'
+ when dept_code = 'D9' then '영업부' end "부서명" from employee where dept_code in ('D5','D6','D9') order by dept_code asc;
 
+--11 다른 답
+select * from employee;
+select * from department;
+select e.emp_name "사원명" ,d.dept_title "부서명" from employee e join department d on e.dept_code = d.dept_id  where dept_code in ('D5','D6','D9'); 
 --------------------------------------------------------------------------------
 -- group by ex ---------------------------------------------------------------------
 
