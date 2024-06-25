@@ -1,0 +1,125 @@
+--DAY 8 PL/SQL
+--ORACLE'S PROCEDURAL LANGUAGE EXTENSION TO SQL 의 약자
+
+--블록문법
+--DECLARE
+--BEGIN
+--EXCEPTION
+--END;
+--/
+SET SERVEROUTPUT ON;
+SELECT EMP_NAME FROM EMPLOYEE WHERE EMP_NAME = '이태림';
+DECLARE
+   -- SALARY EMPLOYEE.SALARY%TYPE;
+    EINFO EMPLOYEE % ROWTYPE;
+BEGIN
+    SELECT * INTO EINFO 
+    FROM EMPLOYEE 
+    WHERE EMP_ID= '&EMPID';
+    DBMS_OUTPUT.PUT_LINE('이름 :'|| EINFO.EMP_NAME || ' ,급여: '|| EINFO.SALARY);
+END;
+/
+
+--PL/SQL의  IF문
+--IF(조건식) THEN(실행문) END IF;
+--IF(조건식) THEN (실행문) ELSE(실행문) END IF;
+--IF(조건식) THEN (실행문) ELSIF(실행문) THEN (실행문)
+--ELSE(실행문) END IF;
+------IF EX-----------
+-- @실습문제3
+-- 사번을 입력 받은 후 급여에 따라 등급을 나누어 출력하도록 하시오.
+-- 그때 출력 값은 사번, 이름, 급여, 급여등급을 출력하시오.
+-- 500만원 이상(그외) : A
+-- 400만원 ~ 499만원 : B
+-- 300만원 ~ 399만원 : C
+-- 200만원 ~ 299만원 : D
+-- 100만원 ~ 199만원 : E
+-- 0만원 ~ 99만원 : F
+
+-- 사번 : 201
+-- 이름 : 송종기
+-- 급여 : 5000000
+-- 급여등급 : A
+SELECT * FROM EMPLOYEE;
+DECLARE 
+    EMPID EMPLOYEE.EMP_ID%TYPE;
+    ENAME EMPLOYEE.EMP_NAME%TYPE;
+    SALARY EMPLOYEE.SALARY%TYPE;
+    SLEVEL EMPLOYEE.SAL_LEVEL%TYPE;
+BEGIN
+    SELECT EMP_ID , EMP_NAME ,SALARY  INTO EMPID , ENAME,SALARY 
+    FROM EMPLOYEE 
+    WHERE EMP_ID = '&사번';
+  
+    SALARY := SALARY / 10000;
+   
+    IF(SALARY BETWEEN 0 AND 99)
+    THEN SLEVEL := 'F';
+    ELSIF(SALARY BETWEEN 100 AND 199)
+    THEN SLEVEL := 'E';
+    ELSIF(SALARY BETWEEN 200 AND 299)
+    THEN SLEVEL := 'D';
+    ELSIF(SALARY BETWEEN 300 AND 399)
+    THEN SLEVEL := 'C';
+    ELSIF(SALARY BETWEEN 400 AND 499)
+    THEN SLEVEL := 'B';
+    ELSE SLEVEL:='A';
+END IF;    
+    DBMS_OUTPUT.PUT_LINE ( '사번 : ' || EMPID);
+    DBMS_OUTPUT.PUT_LINE ( '이름 : ' || ENAME);
+    DBMS_OUTPUT.PUT_LINE ( '급여 : ' || SALARY *10000);
+    DBMS_OUTPUT.PUT_LINE ( '급여등급 : ' || SLEVEL);  
+
+END;
+/
+---------------------------------------------------------------
+
+---CASE 문
+--CASE 변수 WHEN 변수가 가지는 값1 THEN 실행문1
+--CASE 변수 WHEN 변수가 가지는 값2 THEN 실행문2
+--CASE 변수 WHEN 변수가 가지는 값3 THEN 실행문3
+--END CASE;
+
+DECLARE
+ INPUT NUMBER;
+BEGIN
+ INPUT := '&입력';
+
+ CASE INPUT WHEN 1 THEN DBMS_OUTPUT.PUT_LINE('RED');
+  WHEN 2 THEN DBMS_OUTPUT.PUT_LINE('YELLOW');
+  WHEN 3 THEN DBMS_OUTPUT.PUT_LINE('GREEN');
+ END CASE;
+
+END;
+/
+-----------------IF 를 CASE 로-----------------------
+DECLARE 
+    EMPID EMPLOYEE.EMP_ID%TYPE;
+    ENAME EMPLOYEE.EMP_NAME%TYPE;
+    SALARY EMPLOYEE.SALARY%TYPE;
+    SLEVEL EMPLOYEE.SAL_LEVEL%TYPE;
+    SAL VARCHAR2(10);
+BEGIN
+    SELECT EMP_ID , EMP_NAME ,SALARY  INTO EMPID , ENAME,SALARY 
+    FROM EMPLOYEE 
+    WHERE EMP_ID = '&사번';
+  SAL:= SALARY;
+    SALARY := FLOOR(SALARY / 1000000);
+    
+    
+    CASE SALARY
+    WHEN 0 THEN SLEVEL := 'F';
+    WHEN 1 THEN SLEVEL := 'E';
+    WHEN 2 THEN SLEVEL := 'D';
+    WHEN 3 THEN SLEVEL := 'C';
+    WHEN 4 THEN SLEVEL := 'B';
+    ELSE SLEVEL:='A';
+
+    END CASE;    
+    DBMS_OUTPUT.PUT_LINE ( '사번 : ' || EMPID);
+    DBMS_OUTPUT.PUT_LINE ( '이름 : ' || ENAME);
+    DBMS_OUTPUT.PUT_LINE ( '급여 : ' || SAL);
+    DBMS_OUTPUT.PUT_LINE ( '급여등급 : ' || SLEVEL);  
+
+END;
+/

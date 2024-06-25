@@ -122,6 +122,8 @@ SELECT * FROM EMPLOYEE;
 ---------------------------------------------------------------------------------
 --PL/SQL의 조건문
 --1.IF(조건식) THEN (실행문) END IF ;
+--2. IF(조건식) THEN (실행문) ELSE (실행문) END IF;
+--3. IF(조건식) THEN (실행문) ELSIF (실행문) THEN (실행문) ELSIF(조건식) THEN (실행문) ELSE (실행문) END IF;
 -- @실습문제1
 -- 사원번호를 입력받아서 사원의 사번, 이름, 급여, 보너스율을 출력하시오
 -- 단, 직급코드가 J1인 경우 '저희 회사 대표님입니다.'를 출력하시오.
@@ -134,12 +136,13 @@ SET SERVEROUTPUT ON;
 
 DECLARE 
     EMP_INFO EMPOYEE%ROWTYPE;
+    VJOBCODE JOB.JOB_CODE%TYPE;
 BEGIN 
     SELECT * INTO EMP_INFO FROM EMPLOYEE WHERE EMP_ID = '&EMP_ID';
-    DBMS_OUTPUT.PUT_LINE('사번 : '||EMP_INFO.EMP_ID);
-    DBMS_OUTPUT.PUT_LINE('이름 : '|| EMP_INFO.EMP_NAME);
-    DBMS_OUTPUT.PUT_LINE('급여 : ' || EMP_INFO.SALARY);
-    DBMS_OUTPUT.PUT_LINE('보너스율 : ' || EMP_INFO.BONUS*100||'%');
+    DBMS_OUTPUT.PUT_LINE('사번 :'||EMP_INFO.EMP_ID);
+    DBMS_OUTPUT.PUT_LINE('이름 :'|| EMP_INFO.EMP_NAME);
+    DBMS_OUTPUT.PUT_LINE('급여 :' || EMP_INFO.SALARY);
+    DBMS_OUTPUT.PUT_LINE('보너스율 :' || EMP_INFO.BONUS*100||'%');
     JOB_CODE :='J1';
 
     IF (EMP_INFO.JOB_CODE ='J1') THEN DBMS_OUTPUT.PUT_LINE('저희 회사 대표님 입니다');
@@ -155,6 +158,122 @@ END;
 -- 부서명 : 총무부
 -- 직급명 : 부사장
 -- 소속 : 일반직원
+
+DECLARE 
+    VEMPID EMPLOYEE.EMP_ID%TYPE;
+    VEMPNAME EMPLOYEE.EMP_NAME%TYPE;
+    VDEPTTITLE DEPARTMENT.DEPT_TITLE%TYPE;
+    VJOBNAME JOB.JOB_NAME%TYPE;
+    VJCODE JOB.JOB_CODE%TYPE;
+BEGIN    
+    SELECT EMP_ID , EMP_NAME , DEPT_TITLE , JOB_NAME ,JOB_CODE
+    INTO VEMPID , VEMPNAME , VDEPTTITLE, VJOBNAME ,VJCODE 
+    FROM EMPLOYEE 
+    JOIN DEPARTMENT ON DEPT_CODE = DEPT_ID 
+    JOIN JOB USING(JOB_CODE) 
+    WHERE EMP_ID = '&EMP_ID';
+     
+    DBMS_OUTPUT.PUT_LINE('사번 :'|| VEMPID);
+    DBMS_OUTPUT.PUT_LINE('이름 :'|| VEMPNAME);
+    DBMS_OUTPUT.PUT_LINE('부서명 :'|| VDEPTTITLE);
+    DBMS_OUTPUT.PUT_LINE('직급명 :'|| VJOBNAME);
+    IF(VJCODE ='J1') 
+    THEN DBMS_OUTPUT.PUT_LINE('대표');
+    ELSE DBMS_OUTPUT.PUT_LINE('일반직원');
+    END IF;
+END;
+/
+-----------------------------------------------------------------
+DECLARE
+    V_EMPID EMPLOYEE.EMP_ID%TYPE;
+    V_ENAME EMPLOYEE.EMP_NAME%TYPE;
+    V_DTITLE DEPARTMENT.DEPT_TITLE%TYPE;
+    V_JNAME JOB.JOB_NAME%TYPE;
+    V_JCODE JOB.JOB_CODE%TYPE;
+BEGIN
+    SELECT EMP_ID, EMP_NAME, DEPT_TITLE, JOB_NAME, JOB_CODE
+    INTO V_EMPID, V_ENAME, V_DTITLE, V_JNAME, V_JCODE
+    FROM EMPLOYEE
+    JOIN DEPARTMENT ON DEPT_CODE = DEPT_ID
+    JOIN JOB USING(JOB_CODE)
+    WHERE EMP_ID = '&EMP_ID';
+    
+    DBMS_OUTPUT.PUT_LINE('사번 : ' || V_EMPID);
+    DBMS_OUTPUT.PUT_LINE('이름 : ' || V_ENAME);
+    DBMS_OUTPUT.PUT_LINE('부서명 : ' || V_DTITLE);
+    DBMS_OUTPUT.PUT_LINE('직급명 : ' || V_JNAME);
+    
+    
+    IF (V_JCODE = 'J1')
+    THEN DBMS_OUTPUT.PUT_LINE('소속 : 대표');
+    ELSE DBMS_OUTPUT.PUT_LINE('소속 : 일반직원');
+    END IF;
+END;
+/
 --------------------------------------------------------------------------------------------
---2. IF(조건식) THEN (실행문) ELSE (실행문) END IF;
---3. IF(조건식) THEN (실행문) ELSIF (실행문) THEN (실행문) ELSIF(조건식) THEN (실행문) ELSE (실행문) END IF;
+-- @실습문제3
+-- 사번을 입력 받은 후 급여에 따라 등급을 나누어 출력하도록 하시오.
+-- 그때 출력 값은 사번, 이름, 급여, 급여등급을 출력하시오.
+-- 500만원 이상(그외) : A
+-- 400만원 ~ 499만원 : B
+-- 300만원 ~ 399만원 : C
+-- 200만원 ~ 299만원 : D
+-- 100만원 ~ 199만원 : E
+-- 0만원 ~ 99만원 : F
+
+DECLARE 
+    V_EMPID EMPLOYEE.EMP_ID%TYPE;
+    V_EMPNAME EMPLOYEE.EMP_NAME%TYPE;
+    V_SALARY EMPLOYEE.SALARY%TYPE;
+    V_SALARYLEV VARCHAR2(2);
+ 
+BEGIN
+    SELECT EMP_ID , EMP_NAME , SALARY  INTO V_EMPID , V_EMPNAME , V_SALARY
+    FROM EMPLOYEE WHERE EMP_ID = '&EMP_ID';
+    DBMS_OUTPUT.PUT_LINE('사번 : ' || V_EMPID);
+    DBMS_OUTPUT.PUT_LINE('이름 : ' || V_EMPNAME);
+    DBMS_OUTPUT.PUT_LINE ('급여 : ' || V_SALARY);
+    DBMS_OUTPUT.PUT_LINE('등급: ' || V_SALARYLEV);
+    V_SALARY :=V_SALARY/10000;
+    
+    IF(V_SALARY > '500') THEN
+    DBMS_OUTPUT.PUT_LINE('500만원 이상(그외): A' );
+    ELSIF(V_SALARY  BETWEEN 400 AND 499) THEN
+    DBMS_OUTPUT.PUT_LINE('400만원~499만원: B ');
+    ELSIF(V_SALARY BETWEEN 300 AND 399) THEN
+    DBMS_OUTPUT.PUT_LINE('300만원~399만원: C' );
+    ELSIF(V_SALARY BETWEEN 200 AND 299) THEN
+    DBMS_OUTPUT.PUT_LINE('200만원~299만원: D' );
+    ELSIF(V_SALARY BETWEEN 100 AND 199) THEN
+    DBMS_OUTPUT.PUT_LINE('100만원~199만원: E' );
+    ELSE
+    DBMS_OUTPUT.PUT_LINE('0만원~ 99만원 :F ' );
+    
+    
+END IF;
+END;
+/
+------------------------------------------------------------------------------------------
+--ELSIF와 대응되는 CASE 문
+--CASE 변수
+-- WHEN 값1 THEN 실행문1;
+-- WHEN 값2 THEN 실행문2;
+-- WHEN 값3 THEN 실행문3;
+-- WHEN 값4 THEN 실행문4;
+--ELSE 실행문 
+--END CASE;
+-------------------------------------------------------------------------------------------
+V_SALARY := FLOOR(V_SALARY/1000000);
+CASE V_SALARY
+    WHEN 0 
+    THEN V_SALARYLEV :='F';
+    WHEN 1
+    THEN V_SALARYLEV :='E';
+    WHEN 2
+    THEN V_SALARYLEV :='D';
+    WHEN 3
+    THEN V_SALARYLEV :='C';
+    WHEN 4
+    THEN V_SALARYLEV :='B';
+    ELSE V_SALARYLEV :='A';
+END CASE;

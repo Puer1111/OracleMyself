@@ -21,7 +21,7 @@ select MONTHS_BETWEEN(sysdate ,'24/05/27') from dual;
 select Last_day(sysdate) from dual;
 select Last_day('24/02/23')+1 from dual;
 select extract (year from sysdate) from dual;
-
+SELECT TO_CHAR(TO_DATE('2020-12-25','YYYY-MM-DD'),'DAY') FROM DUAL;
 ---------------ex-------------------
 -- ex1) EMPLOYEE 테이블에서 사원의 이름, 입사일, 입사 후 3개월이 된 날짜를 조회하시오.
 -- ex2) EMPLOYEE 테이블에서 사원의 이름, 입사일, 근무 개월수를 조회하시오.
